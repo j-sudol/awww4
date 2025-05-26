@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: row; /* Two columns: routes list on the left, user info on the right */
+            height: 100vh;
+        }
+        .routes-container {
+            flex: 2; /* Take up 2/3 of the screen */
+            padding: 20px;
+            background-color: #f4f4f4;
+            overflow-y: auto;
+        }
+        .routes-container h1 {
+            margin-bottom: 20px;
+        }
+        .routes-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .routes-list li {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .routes-list li a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+            flex: 1;
+        }
+        .routes-list li a:hover {
+            text-decoration: underline;
+        }
+        .routes-list li form {
+            margin-left: 10px;
+        }
+        .routes-list li button {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .routes-list li button:hover {
+            background-color: darkred;
+        }
+        .user-info-container {
+            flex: 1; /* Take up 1/3 of the screen */
+            padding: 20px;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .user-info-container h1 {
+            margin-bottom: 20px;
+        }
+        .user-info-container a {
+            text-decoration: none;
+            color: white;
+            background-color: blue;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="routes-container">
+        <h1>Twoje trasy:</h1>
+        <ul class="routes-list">
+            {% for route in routes %}
+                <li>
+                    <a href="{% url 'route_detail' %}?id={{ route.id }}">{{ route.name }}</a>
+                    <form action="{% url 'delete_route' route.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit">Usuń</button>
+                    </form>
+                </li>
+            {% empty %}
+                <li>Nie masz jeszcze żadnych tras.</li>
+            {% endfor %}
+        </ul>
+        <a href="{% url 'add_route' %}" style="text-decoration: none; color: white; background-color: green; padding: 10px 20px; border-radius: 5px; display: inline-block;">Dodaj trasę</a>
+    </div>
+    <div class="user-info-container">
+        <div>
+            <h1>Witaj, {{ user.username }}!</h1>
+        </div>
+        <div>
+            <a href="{% url 'logout' %}">Wyloguj się</a>
+        </div>
+    </div>
+</body>
+</html>

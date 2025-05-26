@@ -1,0 +1,164 @@
+openapi: 3.0.3
+info:
+  title: Routes API
+  version: "1.0"
+  description: API do zarządzania trasami i punktami tras.
+  contact:
+    name: Support
+    email: contact@routes.local
+  license:
+    name: BSD License
+servers:
+  - url: http://localhost:8000/api/
+
+paths:
+  /api/routes/:
+    get:
+      summary: Pobierz wszystkie trasy użytkownika
+      responses:
+        '200':
+          description: Lista tras
+    post:
+      summary: Utwórz nową trasę
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Route'
+      responses:
+        '201':
+          description: Utworzono trasę
+
+  /api/routes/{id}/:
+    get:
+      summary: Pobierz szczegóły trasy
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Szczegóły trasy
+
+  /api/routes/{id}/details/:
+    get:
+      summary: Pobierz trasę z punktami
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Trasa z punktami
+
+  /api/routes/{id}/points/:
+    get:
+      summary: Pobierz punkty trasy
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Lista punktów
+
+    post:
+      summary: Dodaj punkt do trasy
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoutePointInput'
+      responses:
+        '201':
+          description: Dodano punkt
+
+  /api/routes/{id}/points/{point_id}/:
+    delete:
+      summary: Usuń punkt trasy
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: point_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Usunięto punkt
+
+  /api/token:
+    post:
+      summary: Uzyskaj token logowania
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Token JWT
+
+components:
+  schemas:
+    Route:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        background:
+          type: string
+        user:
+          type: integer
+      required:
+        - name
+
+    RoutePoint:
+      type: object
+      properties:
+        id:
+          type: integer
+        route:
+          type: integer
+        x:
+          type: number
+        y:
+          type: number
+        order:
+          type: integer
+
+    RoutePointInput:
+      type: object
+      properties:
+        x:
+          type: number
+        y:
+          type: number
+      required:
+        - x
+        - y

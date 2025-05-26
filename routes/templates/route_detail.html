@@ -1,0 +1,160 @@
+<!-- filepath: /home/kuba/studia/semestr4/awww/project3/routes/templates/route_detail.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trasa {{ route.name }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: row; /* Two columns: background on the left, list on the right */
+            height: 100vh;
+        }
+        .background-container {
+            position: relative;
+            flex: 7; /* Take up 70% of the screen width */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f4f4f4;
+            overflow: hidden;
+            cursor: crosshair; /* Indicate clickable area */
+        }
+        .background-container img {
+            width: 100%;
+            height: auto;
+            object-fit: contain; /* Ensure the image is not distorted */
+        }
+        .point-marker {
+            position: absolute;
+            background-color: rgba(255, 0, 0, 0.7);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            font-weight: bold;
+            transform: translate(-50%, -50%);
+        }
+        .points-container {
+            flex: 3; /* Take up 30% of the screen width */
+            padding: 20px;
+            background-color: #ffffff;
+            overflow-y: auto;
+        }
+        .points-container h2 {
+            margin-bottom: 20px;
+        }
+        .points-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .points-list li {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+            @media (max-width: 768px) {
+            .background-container {
+                flex: 1; /* Take up 50% of the screen width */
+            }
+
+            .points-container {
+                flex: 1; /* Take up 50% of the screen width */
+            }
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const backgroundContainer = document.querySelector('.background-container');
+            const backgroundImage = backgroundContainer.querySelector('img'); // Select the image
+            const routeId = "{{ route.id }}"; // Pass the route ID to the script
+
+            backgroundContainer.addEventListener('click', (event) => {
+                // Ensure the click is on the image, not the container
+                if (event.target !== backgroundImage) {
+                    return; // Ignore clicks outside the image
+                }
+
+                const rect = backgroundImage.getBoundingClientRect(); // Get the image's bounding box
+                const imageWidth = rect.width;
+                const imageHeight = rect.height;
+
+                // Calculate the click position relative to the image's displayed dimensions
+                const clickX = event.clientX - rect.left; // X coordinate relative to the image
+                const clickY = event.clientY - rect.top;  // Y coordinate relative to the image
+
+                // Convert the click position to percentages
+                const x = (clickX / imageWidth) * 100; // X in percentage
+                const y = (clickY / imageHeight) * 100; // Y in percentage
+
+                // Ensure the coordinates are within bounds (0-100%)
+                if (x < 0 || x > 100 || y < 0 || y > 100) {
+                    return; // Ignore clicks outside the image bounds
+                }
+
+                // Send the coordinates to the server
+                fetch("{% url 'add_route_point' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}', // Include CSRF token
+                    },
+                    body: JSON.stringify({ x, y, route_id: routeId }),
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Reload the page to display the updated list of points
+                        window.location.reload();
+                    } else {
+                        alert('Failed to add point.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="background-container">
+        <img src="{{ route.background.image.url }}" alt="Route Image">
+        <svg class="lines-container" xmlns="http://www.w3.org/2000/svg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+            {% for point1, point2 in paired_points %}
+                <line x1="{{ point1.x }}%" y1="{{ point1.y }}%" x2="{{ point2.x }}%" y2="{{ point2.y }}%" stroke="red" stroke-width="2" />
+            {% endfor %}
+        </svg>
+        {% for point in points %}
+            <div class="point-marker" style="top: {{ point.y }}%; left: {{ point.x }}%;">
+                {{ point.order }}
+            </div>
+        {% endfor %}
+    </div>
+    <div class="points-container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1 style="margin: 0;">Trasa: {{ route.name }}</h1>
+            <a href="{% url 'home' %}" style="text-decoration: none; color: #007bff; font-weight: bold; font-size: 14px;">My routes</a>
+        </div>
+        <h2>Lista Punktów</h2>
+        <ul class="points-list">
+            {% for point in points %}
+                <li><strong>{{ point.order }}.</strong> X: {{ point.x }}, Y: {{ point.y }}
+                    <form action="{% url 'delete_route_point' point.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" style="background: none; border: none; color: red; cursor: pointer;">Usuń</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
