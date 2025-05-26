@@ -1,0 +1,140 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solve GameBoard</title>
+    <style>
+        /* General body styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        /* Page title styling */
+        h1 {
+            font-size: 28px;
+            color: #333333;
+            margin-bottom: 20px;
+        }
+
+        /* Board container styling */
+        #board_container {
+            display: grid;
+            gap: 2px;;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            grid-template-rows: repeat(auto-fill, 40px); /* Default row size */
+            grid-template-columns: repeat(auto-fill, 40px); /* Default column size */
+        }
+
+        /* Grid cell styling */
+        .grid-cell {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #ccc;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .grid-cell:hover {
+            background-color: #e9ecef;
+            transform: scale(1.05);
+        }
+
+        .grid-cell.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* Color buttons container styling */
+        #color-buttons-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+            background-color: #ffffff; /* Match board_container background */
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for consistency */
+        }
+
+        /* Individual color button styling */
+        .color-button {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .color-button.selected {
+            outline: 3px solid #000;
+        }
+
+        .color-button:hover {
+            transform: scale(1.1);
+        }
+
+        /* Save button styling */
+        .save-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #28a745; /* Green background */
+            color: white; /* White text */
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .save-button:hover {
+            background-color: #218838; /* Darker green on hover */
+            transform: scale(1.05); /* Slight scaling effect */
+        }
+
+        .save-button:active {
+            background-color: #1e7e34; /* Even darker green when active */
+            transform: scale(0.95); /* Slight shrink effect */
+        }
+
+        /* Footer styling */
+        footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ board.board_name }}</h1>
+    <div id="board_container"></div>
+    <input type="hidden" id="game_dots_input" value="{{ game_dots }}">
+    <form action="{% url 'save_game' %}" method="POST">
+        {% csrf_token %}
+        <button type="button" id="save-button" class="save-button">Save</button>
+        <input type="hidden" name="save_dots" id="save-dots" value="{{ save_dots }}">
+        <input type="hidden" name="board" id="board_input" value="{{ board }}">
+    </form>
+    <script src="{% static 'js/dist/solve_board.js' %}"></script>
+</body>
+</html>

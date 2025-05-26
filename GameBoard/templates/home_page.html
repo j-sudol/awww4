@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameBoards</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .main-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px; /* Add space between the two containers */
+            width: 90%; /* Adjust width to fit the screen */
+            max-width: 900px; /* Limit the maximum width */
+        }
+
+        .boards-container,
+        .games-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 45%; /* Each container takes 45% of the width */
+            text-align: center;
+        }
+
+        .boards-container h1,
+        .games-container h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333333;
+        }
+
+        .boards-list,
+        .games-container .boards-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .boards-list li,
+        .games-container .boards-list li {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .boards-list a,
+        .games-container .boards-list a {
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        .boards-list a {
+            color: #007bff;
+        }
+
+        .boards-list a:hover {
+            color: #0056b3;
+        }
+
+        .games-container .boards-list a {
+            color: #28a745; /* Green color for solve links */
+        }
+
+        .games-container .boards-list a:hover {
+            color: #1e7e34; /* Darker green on hover */
+        }
+
+        .boards-list button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .boards-list button:hover {
+            background-color: #c82333;
+        }
+
+        .no-boards {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .create-board-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #007bff; /* Blue background */
+            color: white; /* White text */
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .create-board-link:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+            transform: scale(1.05); /* Slight scaling effect */
+        }
+
+        .logout-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #dc3545; /* Red background */
+            color: white; /* White text */
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .logout-link:hover {
+            background-color: #c82333; /* Darker red on hover */
+            transform: scale(1.05); /* Slight scaling effect */
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="boards-container">
+            <h1>Created GameBoards</h1>
+            <ul class="boards-list">
+                {% for board in boards %}
+                    <li>
+                        <a href="{% url 'edit_board' board.id %}">{{ board.board_name }}</a>
+                        <form action="{% url 'delete_board' board.id %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit">Delete</button>
+                        </form>
+                    </li>
+                {% endfor %}
+                {% if not boards %}
+                    <li class="no-boards">No GameBoards created yet.</li>
+                {% endif %}
+            </ul>
+            <a href="{% url 'edit_board' %}" class="create-board-link">Create a new GameBoard</a>
+        </div>
+        <div class="games-container">
+            <h1>Solve GameBoards</h1>
+            <ul class="boards-list">
+                {% for board in all_boards %}
+                    <li>
+                        <a href="{% url 'solve_board' board.id %}">{{ board.board_name }}</a>
+                    </li>
+                {% endfor %}
+                {% if not all_boards %}
+                    <li class="no-boards">No GameBoards available to solve.</li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+    <div> 
+        <a href="{% url 'logout' %}" class="logout-link">Log out</a> 
+    </div>
+</body>
+</html>

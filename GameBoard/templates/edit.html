@@ -1,0 +1,184 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edytuj planszę</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #e9ecef;
+        }
+        .form-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 400px;
+        }
+        .form-container h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-align: center;
+            color: #333333;
+        }
+        .form-container label {
+            font-weight: bold;
+            color: #555555;
+        }
+        .form-container input[type="text"],
+        .form-container input[type="number"],
+        .form-container input[type="color"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0 20px;
+            border: 1px solid #cccccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .form-container .color-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 10px; /* Add space between the color buttons */
+        }
+        .form-container .color-button {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .form-container .color-button:hover {
+            transform: scale(1.1);
+        }
+        .form-container button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .form-container button[type="submit"]:hover {
+            background-color: #218838;
+        }
+        #generate-button {
+        width: 100%;
+        padding: 12px;
+        background-color: #007bff; /* niebieski */
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 18px;
+        cursor: pointer;
+        margin-bottom: 20px;
+        transition: background-color 0.3s, box-shadow 0.2s;
+    }
+    #generate-button:hover,
+    #generate-button:focus {
+        background-color: #0056b3;
+        box-shadow: 0 0 8px rgba(0, 123, 255, 0.7);
+        outline: none;
+    }
+
+    /* Ulepszony grid-container */
+    #grid-container {
+        margin-top: 20px;
+        margin-bottom: 30px; /* Add space below the grid container */
+        width: max-content;
+        background-color: #f9f9f9;
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        user-select: none;
+    }
+
+    /* Grid cell */
+    .grid-cell {
+        cursor: pointer;
+        user-select: none;
+        border: 1px solid #ccc;
+        transition: background-color 0.3s, border-color 0.2s;
+        border-radius: 5px;
+    }
+    .grid-cell:hover {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+    .grid-cell:active {
+        transform: scale(0.95);
+        transition: transform 0.1s;
+    }
+
+    #save-button {
+        width: 100%;
+        padding: 12px;
+        background-color: #17a2b8; /* Teal color */
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 18px;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: background-color 0.3s, box-shadow 0.2s;
+    }
+    #save-button:hover,
+    #save-button:focus {
+        background-color: #138496; /* Darker teal on hover */
+        box-shadow: 0 0 8px rgba(23, 162, 184, 0.7);
+        outline: none;
+    }
+    </style>
+    <script>
+        function selectColor(color) {
+            document.getElementById('selected-color').value = color;
+            const buttons = document.querySelectorAll('.color-button');
+            buttons.forEach(button => button.style.outline = 'none');
+            document.querySelector(`[data-color="${color}"]`).style.outline = '3px solid #000';
+        }
+    </script>
+
+    
+</head>
+<body>
+    <div class="form-container">
+        <h1>{{ board.id|default:"Create" }} GameBoard</h1>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+
+            <button type="button" id="generate-button">Generate</button>
+
+            <div id="grid-container"></div>
+
+            <div class="color-buttons">
+                <input type="hidden" id="selected-color" name="color" value="{{ board.color|default:'#FF00FF' }}">
+                <button type="button" class="color-button" style="background-color: #FF00FF;" data-color="#FF00FF" onclick="selectColor('#FF00FF')"></button>
+                <button type="button" class="color-button" style="background-color: #FF0000;" data-color="#FF0000" onclick="selectColor('#FF0000')"></button>
+                <button type="button" class="color-button" style="background-color: #00FF00;" data-color="#00FF00" onclick="selectColor('#00FF00')"></button>
+                <button type="button" class="color-button" style="background-color: #0000FF;" data-color="#0000FF" onclick="selectColor('#0000FF')"></button>
+                <button type="button" class="color-button" style="background-color: #FFFF00;" data-color="#FFFF00" onclick="selectColor('#FFFF00')"></button>
+                <button type="button" class="color-button" style="background-color: #FFA500;" data-color="#FFA500" onclick="selectColor('#FFA500')"></button>
+                <button type="button" class="color-button" style="background-color: #800080;" data-color="#800080" onclick="selectColor('#800080')"></button>
+                <button type="button" class="color-button" style="background-color: #808080;" data-color="#808080" onclick="selectColor('#808080')"></button>
+            </div>
+            <input type="hidden" name="dots" id="dots-json" value='{{ dots_json|safe}}'>
+            <button type="button" id="save-button">Save</button>
+        </form>
+    </div>
+
+    <script src="{% static 'js/dist/edit_board.js' %}"></script>
+</body>
+</html>
